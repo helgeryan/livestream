@@ -1,0 +1,91 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+
+# Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+
+# SwiftPM
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+Podfile.lock
+Podfile.swp
+
+# Carthage
+Carthage/Build/
+
+# Accio dependency manager
+Dependencies/
+.accio/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Code coverage
+*.gcno
+*.profdata
+
+# Archives
+*.xcarchive
+
+# Firebase
+GoogleService-Info.plist
+
+# SPM Packages (if using Xcode 13+ with SPM cache)
+Package.resolved
+
+# Xcode Playground files
+timeline.xctimeline
+playground.xcworkspace
+
+# Xcode automatic signing
+*.entitlements
+
+# User settings
+*.swp
+*.swo
+
+# SwiftLint cache
+.swiftlint.cache
+
+# Tuist
+Tuist/Dependencies
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
