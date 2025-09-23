@@ -12,19 +12,7 @@
 		E63017912E81DAFE00893AEC /* RTCHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = E63017902E81DAFE00893AEC /* RTCHaishinKit */; };
 		E63017932E81DAFE00893AEC /* RTMPHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = E63017922E81DAFE00893AEC /* RTMPHaishinKit */; };
 		E63017952E81DAFE00893AEC /* SRTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = E63017942E81DAFE00893AEC /* SRTHaishinKit */; };
-		E63017DD2E83098600893AEC /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E63017DC2E83098600893AEC /* ReplayKit.framework */; };
-		E63017F32E83098600893AEC /* Screencast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E63017DA2E83098600893AEC /* Screencast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		E63017F12E83098600893AEC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E6E6681E2E45844A00FC8300 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E63017D92E83098600893AEC;
-			remoteInfo = Screencast;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		E63017FC2E83098600893AEC /* Embed Foundation Extensions */ = {
@@ -33,7 +21,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				E63017F32E83098600893AEC /* Screencast.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,36 +28,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E63017DA2E83098600893AEC /* Screencast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Screencast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63017DC2E83098600893AEC /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		E63017E82E83098600893AEC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		E6E668262E45844A00FC8300 /* HelgeCloudflare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelgeCloudflare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E63017F42E83098600893AEC /* Exceptions for "Screencast" folder in "Screencast" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E63017D92E83098600893AEC /* Screencast */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E63017DE2E83098600893AEC /* Screencast */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E63017F42E83098600893AEC /* Exceptions for "Screencast" folder in "Screencast" target */,
-			);
-			path = Screencast;
-			sourceTree = "<group>";
-		};
-		E63017EA2E83098600893AEC /* ScreencastSetupUI */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ScreencastSetupUI;
-			sourceTree = "<group>";
-		};
 		E6E668282E45844A00FC8300 /* HelgeCloudflare */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HelgeCloudflare;
@@ -79,14 +42,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		E63017D72E83098600893AEC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E63017DD2E83098600893AEC /* ReplayKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E6E668232E45844A00FC8300 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,8 +70,6 @@
 			isa = PBXGroup;
 			children = (
 				E6E668282E45844A00FC8300 /* HelgeCloudflare */,
-				E63017DE2E83098600893AEC /* Screencast */,
-				E63017EA2E83098600893AEC /* ScreencastSetupUI */,
 				E63017DB2E83098600893AEC /* Frameworks */,
 				E6E668272E45844A00FC8300 /* Products */,
 			);
@@ -126,7 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				E6E668262E45844A00FC8300 /* HelgeCloudflare.app */,
-				E63017DA2E83098600893AEC /* Screencast.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,28 +86,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E63017D92E83098600893AEC /* Screencast */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E63017F52E83098600893AEC /* Build configuration list for PBXNativeTarget "Screencast" */;
-			buildPhases = (
-				E63017D62E83098600893AEC /* Sources */,
-				E63017D72E83098600893AEC /* Frameworks */,
-				E63017D82E83098600893AEC /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				E63017DE2E83098600893AEC /* Screencast */,
-			);
-			name = Screencast;
-			packageProductDependencies = (
-			);
-			productName = Screencast;
-			productReference = E63017DA2E83098600893AEC /* Screencast.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		E6E668252E45844A00FC8300 /* HelgeCloudflare */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E6E668322E45844B00FC8300 /* Build configuration list for PBXNativeTarget "HelgeCloudflare" */;
@@ -168,7 +98,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E63017F22E83098600893AEC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E6E668282E45844A00FC8300 /* HelgeCloudflare */,
@@ -195,9 +124,6 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					E63017D92E83098600893AEC = {
-						CreatedOnToolsVersion = 16.4;
-					};
 					E6E668252E45844A00FC8300 = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -221,19 +147,11 @@
 			projectRoot = "";
 			targets = (
 				E6E668252E45844A00FC8300 /* HelgeCloudflare */,
-				E63017D92E83098600893AEC /* Screencast */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		E63017D82E83098600893AEC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E6E668242E45844A00FC8300 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -244,13 +162,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E63017D62E83098600893AEC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E6E668222E45844A00FC8300 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -260,70 +171,7 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		E63017F22E83098600893AEC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E63017D92E83098600893AEC /* Screencast */;
-			targetProxy = E63017F12E83098600893AEC /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		E63017F62E83098600893AEC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VY9FRH555S;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Screencast/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Screencast;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ryan.helgecloudflare.Screencast;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		E63017F72E83098600893AEC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VY9FRH555S;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Screencast/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Screencast;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ryan.helgecloudflare.Screencast;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		E6E668302E45844B00FC8300 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -531,15 +379,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E63017F52E83098600893AEC /* Build configuration list for PBXNativeTarget "Screencast" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E63017F62E83098600893AEC /* Debug */,
-				E63017F72E83098600893AEC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		E6E668212E45844A00FC8300 /* Build configuration list for PBXProject "HelgeCloudflare" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
