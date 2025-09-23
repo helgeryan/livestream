@@ -29,6 +29,9 @@ struct MenuView: View {
                     .foregroundColor(.red)
             }
         }
+        .onAppear {
+            GIDSignIn.sharedInstance.signOut()
+        }
         .padding()
     }
 
@@ -39,17 +42,15 @@ struct MenuView: View {
                       errorMessage = "Missing clientID"
                       return
                   }
-        
-
-        let scopes = [
-            "https://www.googleapis.com/auth/youtube",
-            "https://www.googleapis.com/auth/youtube.force-ssl"
-        ]
+    
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.signIn(
             withPresenting: UIApplication.shared.rootViewController!,
             hint: nil,
-            additionalScopes: scopes
+            additionalScopes: [
+                "https://www.googleapis.com/auth/youtube",
+                "https://www.googleapis.com/auth/youtube.force-ssl"
+            ]
         ) { result, error in
             if let error = error {
                 errorMessage = "Sign-in failed: \(error.localizedDescription)"
@@ -59,8 +60,8 @@ struct MenuView: View {
             let accessToken = user.accessToken.tokenString
             // Save refresh token if available
             let refreshToken = user.refreshToken
-            UserDefaults.standard.set(refreshToken, forKey: "google_refresh_token")
-            createYouTubeStream(accessToken: accessToken)
+            UserDefaults.standard.set(refreshToken.tokenString, forKey: "google_refresh_token")
+            createLiveBroadcast(accessToken: accessToken)
         }
     }
 
@@ -99,6 +100,37 @@ struct MenuView: View {
                 }
             } else {
                 errorMessage = "Could not parse YouTube response"
+            }
+        }.resume()
+    }
+    
+    func createLiveBroadcast(accessToken: String) {
+        let url = URL(string: "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,contentDetails,status")!
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "snippet": [
+                "title": "My iOS Livestream",
+                "scheduledStartTime": ISO8601DateFormatter().string(from: Date().addingTimeInterval(60))
+            ],
+            "status": [
+                "privacyStatus": "unlisted"
+            ],
+            "contentDetails": [
+                "enableAutoStart": true,
+                "enableAutoStop": true
+            ]
+        ]
+
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            if let data = data {
+                print(String(data: data, encoding: .utf8) ?? "")
             }
         }.resume()
     }
