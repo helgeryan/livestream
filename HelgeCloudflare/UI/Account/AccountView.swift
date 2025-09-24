@@ -11,6 +11,16 @@ import HaishinKit
 import RTCHaishinKit
 import VideoToolbox
 
+final class StreamHelper {
+    static let shared: StreamHelper = .init()
+    
+    var streamKey: String = ""
+    var bcId: String = ""
+    var token: String = ""
+    var streamId: String = ""
+    var channelId: String = ""
+}
+
 struct AccountView: View {
     @StateObject var viewModel: LiveStreamViewModel = .init()
     var preference: PreferenceViewModel = .init()
@@ -171,7 +181,7 @@ final class LiveStreamViewModel: ObservableObject {
             videoScreenObject.horizontalAlignment = .right
             videoScreenObject.layoutMargin = .init(top: 16, left: 0, bottom: 0, right: 16)
             videoScreenObject.size = .init(width: 160 * 2, height: 90 * 2)
-            await mixer.screen.size = .init(width: 1280, height: 720)
+            await mixer.screen.size = .init(width: 720, height: 1080)
 //            await mixer.screen.backgroundColor = NSColor.black.cgColor
             try? await mixer.screen.addChild(videoScreenObject)
         }
@@ -317,7 +327,12 @@ final class PreferenceViewModel: ObservableObject {
 
     func makeURL() -> URL? {
         if uri.contains("rtmp://") {
-            return URL(string: uri + "/" + streamName)
+            print(StreamHelper.shared.streamKey)
+            if StreamHelper.shared.streamKey.isEmpty {
+                return URL(string: uri + "/" + streamName)
+            } else {
+                return URL(string: uri + "/" + StreamHelper.shared.streamKey)
+            }
         }
         return URL(string: uri)
     }
@@ -335,7 +350,12 @@ struct Preference: Sendable {
 
     func makeURL() -> URL? {
         if uri.contains("rtmp://") {
-            return URL(string: uri + "/" + streamName)
+            print(StreamHelper.shared.streamKey)
+            if StreamHelper.shared.streamKey.isEmpty {
+                return URL(string: uri + "/" + streamName)
+            } else {
+                return URL(string: uri + "/" + StreamHelper.shared.streamKey)
+            }
         }
         return URL(string: uri)
     }
