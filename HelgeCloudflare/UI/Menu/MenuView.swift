@@ -93,76 +93,6 @@ struct MenuView: View {
             scheduleYouTubeLive(accessToken: accessToken)
         }
     }
-
-    func createYouTubeStream(accessToken: String) {
-        guard let url = URL(string: "https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn") else { return }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "snippet": ["title": "Swift App Live Stream"],
-            "cdn": [
-                "format": "1080p",
-                "ingestionType": "rtmp"
-            ]
-        ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                errorMessage = "Network error: \(error.localizedDescription)"
-                return
-            }
-
-            guard let data = data else { return }
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let cdn = (json["cdn"] as? [String: Any]),
-               let ingestionInfo = cdn["ingestionInfo"] as? [String: Any],
-               let addr = ingestionInfo["ingestionAddress"] as? String,
-               let key = ingestionInfo["streamName"] as? String {
-                DispatchQueue.main.async {
-                    ingestionAddress = addr
-                    streamKey = key
-                }
-            } else {
-                errorMessage = "Could not parse YouTube response"
-            }
-        }.resume()
-    }
-    
-//    func createLiveBroadcast(accessToken: String) {
-//        let url = URL(string: "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,contentDetails,status")!
-//        
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "POST"
-//        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//
-//        let body: [String: Any] = [
-//            "snippet": [
-//                "title": "My iOS Livestream",
-//                "scheduledStartTime": ISO8601DateFormatter().string(from: Date().addingTimeInterval(60))
-//            ],
-//            "status": [
-//                "privacyStatus": "private"
-//            ],
-//            "contentDetails": [
-//                "enableAutoStart": true,
-//                "enableAutoStop": true
-//            ]
-//        ]
-//
-//        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-//
-//        URLSession.shared.dataTask(with: request) { data, _, error in
-//            if let data = data {
-//                print(String(data: data, encoding: .utf8) ?? "")
-//            }
-//        }.resume()
-//    }
     
     func scheduleYouTubeLive(accessToken: String) {
         fetchChannelID(accessToken: accessToken) { channelId, _ in
@@ -171,19 +101,23 @@ struct MenuView: View {
                 guard let broadcastId = broadcastId else { return }
 
                 print()
-                self.createStream(accessToken: accessToken) { streamId, ingestUrl, streamKey in
-                    guard let streamId = streamId, let ingestUrl = ingestUrl, let streamKey = streamKey else { return }
+                Task {
+                    do {
+                        let stream = try await YoutubeService.shared.createStream()
 
-                    print()
-                    self.bindBroadcast(accessToken: accessToken, broadcastId: broadcastId, streamId: streamId) { success in
-                        if success {
-                            print("✅ Broadcast scheduled and bound to stream!")
-                            print("RTMP URL:", ingestUrl)
-                            print("Stream Key:", streamKey)
-                            StreamHelper.shared.streamKey = streamKey
-                            StreamHelper.shared.bcId = broadcastId
-                            StreamHelper.shared.streamId = streamId
+                        print()
+                        self.bindBroadcast(accessToken: accessToken, broadcastId: broadcastId, streamId: stream.id) { success in
+                            if success {
+                                print("✅ Broadcast scheduled and bound to stream!")
+                                print("RTMP URL:", stream.cdn.ingestionInfo.ingestionAddress)
+                                print("Stream Key:", stream.cdn.ingestionInfo.streamName)
+                                StreamHelper.shared.streamKey = stream.cdn.ingestionInfo.streamName
+                                StreamHelper.shared.bcId = broadcastId
+                                StreamHelper.shared.streamId = stream.id
+                            }
                         }
+                    } catch {
+                        print(error)
                     }
                 }
             }

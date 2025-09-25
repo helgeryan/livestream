@@ -8,6 +8,7 @@
 import Foundation
 
 enum NewsAPIAction: HTTPRequest {
+    
     case fetchNews(FetchNewsRequest)
     
     var method: HTTPMethod {
@@ -22,9 +23,9 @@ enum NewsAPIAction: HTTPRequest {
         }
     }
     
-    var scheme: String {
+    var scheme: URLScheme {
         return switch self {
-        case .fetchNews: "https"
+        case .fetchNews: .https
         }
     }
     
@@ -38,6 +39,10 @@ enum NewsAPIAction: HTTPRequest {
         return switch self {
         case .fetchNews(let request): request.queryItems()
         }
+    }
+    
+    var body: Data? {
+        return nil
     }
     
     var headers: [HTTPHeader] {

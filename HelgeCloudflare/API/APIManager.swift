@@ -34,10 +34,10 @@ final class APIManager {
     func sendRequest<T: Decodable>(_ request: HTTPRequest) async throws -> T {
         do {
             // Create URLRequest
-            let request = try request.urlRequest()
+            let urlRequest = try request.urlRequest()
             
             // Send Data Request
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
             
             if let httpResponse = response as? HTTPURLResponse,
                 httpResponse.statusCode > 299 {

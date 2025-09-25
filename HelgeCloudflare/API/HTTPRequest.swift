@@ -10,8 +10,9 @@ import Foundation
 protocol HTTPRequest {
     var method: HTTPMethod { get }
     var host: String { get }
-    var scheme: String { get }
+    var scheme: URLScheme { get }
     var path: String { get }
+    var body: Data? { get }
     var queryItems: [URLQueryItem]? { get }
     var headers: [HTTPHeader] { get }
 }
@@ -19,7 +20,7 @@ protocol HTTPRequest {
 extension HTTPRequest {
     func urlRequest() throws -> URLRequest {
         var components = URLComponents()
-        components.scheme = scheme
+        components.scheme = scheme.rawValue
         components.host = host
         components.path = path
         components.queryItems = queryItems
@@ -28,6 +29,7 @@ extension HTTPRequest {
             throw URLError(.badURL)
         }
         var request = URLRequest(url: url)
+        request.httpBody = body
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers.reduce(into: [:]) { result, header in
             result[header.key] = header.value
@@ -50,5 +52,11 @@ struct HTTPHeader: Codable {
     let value: String
 }
 
+enum URLScheme: String {
+    case http = "http"
+    case https = "https"
+    
+    var string: String { return self.rawValue }
+}
 
 
