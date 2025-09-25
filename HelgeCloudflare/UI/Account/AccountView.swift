@@ -18,7 +18,6 @@ final class StreamHelper {
     var bcId: String = ""
     var token: String = ""
     var streamId: String = ""
-    var channelId: String = ""
 }
 
 struct AccountView: View {

@@ -14,6 +14,8 @@ struct MenuView: View {
     @State private var ingestionAddress: String?
     @State private var errorMessage: String?
 
+    @State var viewModel = MenuViewModel()
+    
     var body: some View {
         VStack(spacing: 20) {
             GoogleSignInButton(action: handleSignIn)
@@ -25,12 +27,6 @@ struct MenuView: View {
             }
             
             Button {
-                fetchBroadcastStatus()
-            } label: {
-                Text("Get Status")
-            }
-            
-            Button {
                 listLiveStreams()
             } label: {
                 Text("Get Stream")
@@ -38,16 +34,6 @@ struct MenuView: View {
             
             Button {
                 listLiveBroadcasts()
-            } label: {
-                Text("Get broadcast")
-            }
-            
-            Button {
-                bindBroadcast(accessToken: StreamHelper.shared.token,
-                              broadcastId: StreamHelper.shared.bcId,
-                              streamId: StreamHelper.shared.streamId, completion: { _ in
-                    
-                })
             } label: {
                 Text("Get broadcast")
             }
@@ -90,193 +76,8 @@ struct MenuView: View {
             // Save refresh token if available
             let refreshToken = user.refreshToken
             UserDefaults.standard.set(refreshToken.tokenString, forKey: "google_refresh_token")
-            scheduleYouTubeLive(accessToken: accessToken)
+            viewModel.scheduleYouTubeLive(accessToken: accessToken)
         }
-    }
-    
-    func scheduleYouTubeLive(accessToken: String) {
-        fetchChannelID(accessToken: accessToken) { channelId, _ in
-            StreamHelper.shared.channelId = channelId!
-
-            print()
-            Task {
-                do {
-                    let broadcast = try await YoutubeService.shared.createBroadcast()
-                    let stream = try await YoutubeService.shared.createStream()
-                    
-                    print()
-                    
-                    let newBroadcast = try await YoutubeService.shared.bindBroadcast(broadcastId: broadcast.id,
-                                                                                     streamId: stream.id)
-        
-                    print("✅ Broadcast scheduled and bound to stream!")
-                    print("RTMP URL:", stream.cdn.ingestionInfo.ingestionAddress)
-                    print("Stream Key:", stream.cdn.ingestionInfo.streamName)
-                    StreamHelper.shared.streamKey = stream.cdn.ingestionInfo.streamName
-                    StreamHelper.shared.bcId = broadcast.id
-                    StreamHelper.shared.streamId = stream.id
-                } catch {
-                    print(error)
-                }
-            }
-        }
-    }
-    
-    func bindBroadcast(accessToken: String, broadcastId: String, streamId: String, completion: @escaping (Bool) -> Void) {
-        let url = URL(string: "https://www.googleapis.com/youtube/v3/liveBroadcasts/bind?id=\(broadcastId)&part=status,contentDetails&streamId=\(streamId)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(false)
-                return
-            }
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let _ = json["id"] as? String {
-                print(json)
-                completion(true)
-            } else {
-                print("Bind response:", String(data: data, encoding: .utf8) ?? "")
-                completion(false)
-            }
-        }.resume()
-    }
-
-    
-    func createStream(accessToken: String, completion: @escaping (String?, String?, String?) -> Void) {
-        let url = URL(string: "https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn,contentDetails")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "snippet": [
-                "title": "720p"
-            ],
-            "cdn": [
-                "resolution": "variable",
-                "frameRate": "variable",
-                "ingestionType": "rtmp"
-            ],
-            "contentDetails": [
-                "isReusable": false
-            ]
-        ]
-
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(nil, nil, nil)
-                return
-            }
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let id = json["id"] as? String,
-               let cdn = json["cdn"] as? [String: Any],
-               let ingestion = cdn["ingestionInfo"] as? [String: Any],
-               let address = ingestion["ingestionAddress"] as? String,
-               let streamName = ingestion["streamName"] as? String {
-                print(json)
-                completion(id, address, streamName)
-            } else {
-                print("Stream response:", String(data: data, encoding: .utf8) ?? "")
-                completion(nil, nil, nil)
-            }
-        }.resume()
-    }
-
-    
-    func createBroadcast(accessToken: String, completion: @escaping (String?) -> Void) {
-        let url = URL(string: "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,contentDetails,status")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let startTime = ISO8601DateFormatter().string(from: Date().addingTimeInterval(60)) // 1 hour later
-
-        let body: [String: Any] = [
-            "snippet": [
-                "title": "Ryan App Broadcast",
-                "description": "",
-                "scheduledStartTime": startTime
-            ],
-            "contentDetails": [
-                "monitorStream": [
-                    "enableMonitorStream": false,
-                    "broadcastStreamDelayMs": 60000
-                ],
-                "enableDvr": true,
-                "enableEmbed": false,
-                "enableContentEncryption": false,
-                "enableLowLatency": false,
-                "recordFromStart": true,
-                "startWithSlate": false,
-                "enableAutoStart": true,
-                "enableAutoStop": false
-            ],
-            "status": [
-                "privacyStatus": "public",
-                "selfDeclaredMadeForKids": false
-            ]
-        ]
-
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(nil)
-                return
-            }
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let id = json["id"] as? String {
-                print(json)
-                completion(id)
-            } else {
-                print("Broadcast response:", String(data: data, encoding: .utf8) ?? "")
-                completion(nil)
-            }
-        }.resume()
-    }
-
-    
-    func fetchBroadcastStatus() {
-        let urlString = "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=status&id=\(StreamHelper.shared.bcId)"
-        guard let url = URL(string: urlString) else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(StreamHelper.shared.token)", forHTTPHeaderField: "Authorization")
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("❌ Error:", error)
-                return
-            }
-            guard let data = data else {
-                print("❌ No data received")
-                return
-            }
-            do {
-                let decoded = try JSONDecoder().decode(LiveBroadcastResponse.self, from: data)
-                if let item = decoded.items.first {
-                    print("✅ Broadcast ID: \(item.id)")
-                    print("Lifecycle status: \(item.status.lifeCycleStatus)")
-                } else {
-                    print("⚠️ No broadcast found with ID: \(StreamHelper.shared.bcId)")
-                }
-            } catch {
-                print("❌ JSON decode error:", error)
-                if let json = String(data: data, encoding: .utf8) {
-                    print("Response JSON:", json)
-                }
-            }
-        }
-        task.resume()
     }
     
     func listLiveStreams() {
