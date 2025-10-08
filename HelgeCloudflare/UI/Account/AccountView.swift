@@ -367,13 +367,10 @@ enum FPS: String, CaseIterable, Identifiable {
     case fps60 = "60"
 
     var frameRate: Float64 {
-        switch self {
-        case .fps15:
-            return 15
-        case .fps30:
-            return 30
-        case .fps60:
-            return 60
+        return switch self {
+        case .fps15:  15
+        case .fps30: 30
+        case .fps60: 60
         }
     }
 
@@ -387,11 +384,9 @@ enum VideoEffectItem: String, CaseIterable, Identifiable, Sendable {
     var id: Self { self }
 
     func makeVideoEffect() -> VideoEffect? {
-        switch self {
-        case .none:
-            return nil
-        case .monochrome:
-            return MonochromeEffect()
+        return switch self {
+        case .none:  nil
+        case .monochrome: MonochromeEffect()
         }
     }
 }
