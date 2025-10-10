@@ -9,7 +9,7 @@ import Foundation
 
 enum YoutubeAPIAction: HTTPRequest {
     case createStream
-    case createBroadcast
+    case createBroadcast(_ request: YoutubeCreateBroadcastRequest)
     case bindBroacastToStream(broadcastId: String,
                               streamId: String)
     
@@ -56,13 +56,13 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var body: Data? {
         switch self {
-        case .createBroadcast:
-            let startTime = ISO8601DateFormatter().string(from: Date().addingTimeInterval(60)) // 1 hour later
+        case .createBroadcast(let request):
+            let startTime = ISO8601DateFormatter().string(from: request.startTime) // 1 hour later
             
             let body: [String: Any] = [
                 "snippet": [
-                    "title": "Ryan App Broadcast",
-                    "description": "",
+                    "title": request.title,
+                    "description": request.description,
                     "scheduledStartTime": startTime
                 ],
                 "contentDetails": [
@@ -80,8 +80,8 @@ enum YoutubeAPIAction: HTTPRequest {
                     "enableAutoStop": false
                 ],
                 "status": [
-                    "privacyStatus": "public",
-                    "selfDeclaredMadeForKids": false
+                    "privacyStatus": request.privacy.rawValue,
+                    "selfDeclaredMadeForKids": request.isForKids
                 ]
             ]
             

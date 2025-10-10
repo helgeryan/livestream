@@ -18,53 +18,11 @@ struct MenuView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            GoogleSignInButton(action: handleSignIn)
-                .frame(width: 220, height: 50)
-
-            if let key = streamKey, let address = ingestionAddress {
-                Text("RTMP URL: \(address)")
-                Text("Stream Key: \(key)")
+            List {
+                
             }
-            
-            if let err = errorMessage {
-                Text("Error: \(err)")
-                    .foregroundColor(.red)
-            }
-        }
-        .onAppear {
-            GIDSignIn.sharedInstance.signOut()
         }
         .padding()
-    }
-
-    func handleSignIn() {
-        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-                  let dict = NSDictionary(contentsOfFile: path) as? [String: Any],
-                  let clientID = dict["CLIENT_ID"] as? String else {
-                      errorMessage = "Missing clientID"
-                      return
-                  }
-    
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.signIn(
-            withPresenting: UIApplication.shared.rootViewController!,
-            hint: nil,
-            additionalScopes: [
-                "https://www.googleapis.com/auth/youtube",
-                "https://www.googleapis.com/auth/youtube.force-ssl"
-            ]
-        ) { result, error in
-            if let error = error {
-                errorMessage = "Sign-in failed: \(error.localizedDescription)"
-                return
-            }
-            guard let user = result?.user else { return }
-            let accessToken = user.accessToken.tokenString
-            let refreshToken = user.refreshToken.tokenString
-            TokenManager.shared.saveAccessToken(accessToken)
-            TokenManager.shared.saveRefreshToken(refreshToken)
-            viewModel.scheduleYouTubeLive()
-        }
     }
 }
 

@@ -33,30 +33,8 @@ import GoogleSignIn
     
     func connectYouTube() {
         Task {
-            guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-                  let dict = NSDictionary(contentsOfFile: path) as? [String: Any],
-                  let clientID = dict["CLIENT_ID"] as? String else {
-                //                      errorMessage = "Missing clientID"
-                return
-            }
-            
-            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-            
             do {
-                let result  = try await GIDSignIn.sharedInstance.signIn(
-                    withPresenting: UIApplication.shared.rootViewController!,
-                    hint: nil,
-                    additionalScopes: [
-                        "https://www.googleapis.com/auth/youtube",
-                        "https://www.googleapis.com/auth/youtube.force-ssl"
-                    ]
-                )
-                
-                let user = result.user
-                let accessToken = user.accessToken.tokenString
-                let refreshToken = user.refreshToken.tokenString
-                TokenManager.shared.saveAccessToken(accessToken)
-                TokenManager.shared.saveRefreshToken(refreshToken)
+                try await YoutubeService.shared.signIn()
                 self.refresh()
             } catch {
                 //                errorMessage = "Sign-in failed: \(error.localizedDescription)"

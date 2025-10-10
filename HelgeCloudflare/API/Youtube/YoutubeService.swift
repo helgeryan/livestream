@@ -5,13 +5,90 @@
 //  Created by Ryan Helgeson on 9/25/25.
 //
 
-import Foundation
+import SwiftUI
+import GoogleSignIn
+
+enum YoutubeError: CustomError {
+    case noClientID
+    case noAccessToken
+    
+    
+    var title: LocalizedStringKey? {
+        return switch self {
+        case .noClientID, .noAccessToken: "Failed Authentication"
+        }
+    }
+    
+    var userMessage: LocalizedStringKey {
+        return switch self {
+        case .noClientID: "No client ID, please contact support to resolve the issue."
+        case .noAccessToken: "Access has expired, please sign in again."
+        }
+    }
+}
+
+struct YoutubeCreateBroadcastRequest: Identifiable {
+    let id = UUID()
+    var title: String = ""
+    var description: String = ""
+    var startTime: Date = Date()
+    var privacy: YoutubePrivacyStatus = .public
+    var isForKids: Bool = false
+}
+
+enum YoutubePrivacyStatus: String, CaseIterable, Identifiable {
+    case `public` = "public"
+    case unlisted = "unlisted"
+    case `private` = "private"
+
+    var id: String { rawValue }
+}
 
 final class YoutubeService {
     static let shared = YoutubeService()
     
-    func createNewLivestream() async throws {
-        let broadcast = try await createBroadcast()
+    func getClientID() throws -> String {
+        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+              let dict = NSDictionary(contentsOfFile: path) as? [String: Any],
+              let clientID = dict["CLIENT_ID"] as? String else {
+            throw YoutubeError.noClientID
+        }
+        return clientID
+    }
+    
+    @MainActor
+    func signIn() async throws {
+        let clientID = try getClientID()
+        
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        
+        let presentingVc = UIApplication.shared.rootViewController!
+        let scopes = [
+            "https://www.googleapis.com/auth/youtube",
+            "https://www.googleapis.com/auth/youtube.force-ssl"
+        ]
+        do {
+            let result  = try await GIDSignIn.sharedInstance.signIn(withPresenting: presentingVc,
+                                                                    hint: nil,
+                                                                    additionalScopes: scopes)
+            let user = result.user
+            TokenManager.shared.saveAccessToken(user.accessToken.tokenString)
+            TokenManager.shared.saveRefreshToken(user.refreshToken.tokenString)
+        } catch {
+            throw error
+        }
+    }
+    
+    private func verifyToken() throws {
+        guard let accessToken = TokenManager.shared.getAccessToken() else {
+            throw YoutubeError.noAccessToken
+        }
+    }
+    
+    func createNewLivestream(request: YoutubeCreateBroadcastRequest) async throws {
+        try verifyToken()
+        
+        let broadcast = try await createBroadcast(request: request)
         let stream = try await createStream()
         
         print()
@@ -27,8 +104,8 @@ final class YoutubeService {
         StreamHelper.shared.streamId = stream.id
     }
     
-    func createBroadcast() async throws -> YoutubeBroadcastResponse {
-        let action = YoutubeAPIAction.createBroadcast
+    func createBroadcast(request: YoutubeCreateBroadcastRequest) async throws -> YoutubeBroadcastResponse {
+        let action = YoutubeAPIAction.createBroadcast(request)
         return try await APIManager.shared.sendRequest(action)
     }
     
