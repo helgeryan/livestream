@@ -15,6 +15,8 @@ protocol HTTPRequest {
     var body: Data? { get }
     var queryItems: [URLQueryItem]? { get }
     var headers: [HTTPHeader] { get }
+    var isLoggingEnabled: Bool { get }
+    func decodeError(errorData: Data) -> Error?
 }
 
 extension HTTPRequest {

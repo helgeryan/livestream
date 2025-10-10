@@ -17,17 +17,19 @@ struct MenuView: View {
     @State var viewModel = MenuViewModel()
     
     var body: some View {
-        VStack(spacing: 20) {
-            List {
-                ForEach(viewModel.broadcasts, id: \.id) { bc in
-                    VStack {
-                        Text(bc.snippet.title)
-                        Text(bc.snippet.description)
+        MainNavigationView(title: "Broadcasts") {
+            ViewModelStateView(state: viewModel.state,
+                               errorRetry: viewModel.fetchLivestreams) {
+                List {
+                    ForEach(viewModel.broadcasts, id: \.id) { bc in
+                        VStack {
+                            Text(bc.snippet.title)
+                            Text(bc.snippet.description)
+                        }
                     }
                 }
             }
         }
-        .padding()
         .onAppear {
             withAnimation {
                 viewModel.fetchLivestreams()

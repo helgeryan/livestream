@@ -116,10 +116,32 @@ enum YoutubeAPIAction: HTTPRequest {
         }
     }
     
+    var isLoggingEnabled: Bool { true }
+    
     var headers: [HTTPHeader] {
         let auth = HTTPHeader(key: "Authorization",
                               value: "Bearer \(TokenManager.shared.getAccessToken()!)")
         let contentType = HTTPHeader(key: "Content-Type", value: "application/json")
         return [auth, contentType]
     }
+    
+    func decodeError(errorData: Data) -> Error? {
+        let decoder = JSONDecoder()
+        if let response = try? decoder.decode(YoutubeErrorResponse.self, from: errorData) {
+            return YoutubeError.generalError(response)
+        } else {
+            return nil
+        }
+    }
 }
+
+struct YoutubeErrorResponse: Codable {
+    let error: ErrorResponse
+    
+    struct ErrorResponse: Codable {
+        let code: Int
+        let message: String
+    }
+}
+
+

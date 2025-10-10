@@ -11,11 +11,13 @@ import GoogleSignIn
 enum YoutubeError: CustomError {
     case noClientID
     case noAccessToken
+    case generalError(YoutubeErrorResponse)
     
     
     var title: LocalizedStringKey? {
         return switch self {
-        case .noClientID, .noAccessToken: "Failed Authentication"
+        case .noClientID, .noAccessToken: "Youtube Authentication Failed"
+        case .generalError: "Youtube Connection Failed"
         }
     }
     
@@ -23,6 +25,7 @@ enum YoutubeError: CustomError {
         return switch self {
         case .noClientID: "No client ID, please contact support to resolve the issue."
         case .noAccessToken: "Access has expired, please sign in again."
+        case .generalError(let response): LocalizedStringKey(response.error.message)
         }
     }
 }
@@ -80,7 +83,7 @@ final class YoutubeService {
     }
     
     private func verifyToken() throws {
-        guard let accessToken = TokenManager.shared.getAccessToken() else {
+        if TokenManager.shared.getAccessToken() == nil {
             throw YoutubeError.noAccessToken
         }
     }

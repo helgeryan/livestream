@@ -39,9 +39,17 @@ final class APIManager {
             // Send Data Request
             let (data, response) = try await URLSession.shared.data(for: urlRequest)
             
+            if request.isLoggingEnabled {
+                logRequest(request.path, data: data)
+            }
+            
             if let httpResponse = response as? HTTPURLResponse,
                 httpResponse.statusCode > 299 {
-                throw APIManagerError.invalidResponse
+                if let error = request.decodeError(errorData: data) {
+                    throw error
+                } else {
+                    throw APIManagerError.invalidResponse
+                }
             }
             
             // Decode the data
@@ -65,5 +73,14 @@ final class APIManager {
             // Do nothing
             throw APIManagerError.failedToCreateRequest
         }
+    }
+    
+    private func logRequest(_ path: String, data: Data) {
+        debugPrint("===========================================")
+        debugPrint("Request: \(path)")
+        debugPrint()
+        debugPrint(String(data: data, encoding: .utf8)!)
+        debugPrint()
+        debugPrint("===========================================")
     }
 }
