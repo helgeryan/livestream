@@ -9,7 +9,7 @@ import Foundation
 
 @Observable
 class MenuViewModel {
-    func scheduleYouTubeLive(accessToken: String) {
+    func scheduleYouTubeLive() {
         Task {
             do {
                 try await YoutubeService.shared.createNewLivestream()

@@ -28,9 +28,6 @@ struct MainNavigationView<Content: View>: View {
                 .navigationDestination(for: String.self) { string in
                     Text(string)
                 }
-                .navigationDestination(for: Article.self) { article in
-                    ArticleDetailView(article: article)
-                }
         }
     }
 }

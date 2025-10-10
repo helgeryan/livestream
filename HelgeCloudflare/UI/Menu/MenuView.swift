@@ -26,18 +26,6 @@ struct MenuView: View {
                 Text("Stream Key: \(key)")
             }
             
-            Button {
-                listLiveStreams()
-            } label: {
-                Text("Get Stream")
-            }
-            
-            Button {
-                listLiveBroadcasts()
-            } label: {
-                Text("Get broadcast")
-            }
-
             if let err = errorMessage {
                 Text("Error: \(err)")
                     .foregroundColor(.red)
@@ -72,90 +60,11 @@ struct MenuView: View {
             }
             guard let user = result?.user else { return }
             let accessToken = user.accessToken.tokenString
-            StreamHelper.shared.token = accessToken
-            // Save refresh token if available
-            let refreshToken = user.refreshToken
-            UserDefaults.standard.set(refreshToken.tokenString, forKey: "google_refresh_token")
-            viewModel.scheduleYouTubeLive(accessToken: accessToken)
+            let refreshToken = user.refreshToken.tokenString
+            TokenManager.shared.saveAccessToken(accessToken)
+            TokenManager.shared.saveRefreshToken(refreshToken)
+            viewModel.scheduleYouTubeLive()
         }
-    }
-    
-    func listLiveStreams() {
-        let urlString = "https://www.googleapis.com/youtube/v3/liveStreams?part=id,snippet,cdn,status&id=\(StreamHelper.shared.streamId)"
-        guard let url = URL(string: urlString) else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(StreamHelper.shared.token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("❌ Streams error:", error)
-                return
-            }
-            guard let data = data else {
-                print("❌ No data received for streams")
-                return
-            }
-            if let json = String(data: data, encoding: .utf8) {
-                print("📡 Streams response:\n\(json)")
-            }
-        }.resume()
-    }
-    
-    func fetchChannelID(accessToken: String, completion: @escaping (String?, Error?) -> Void) {
-        // Build request
-        var request = URLRequest(url: URL(string: "https://www.googleapis.com/youtube/v3/channels?part=id&mine=true")!)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        
-        // Perform request
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(nil, error)
-                return
-            }
-            
-            guard let data = data else {
-                completion(nil, NSError(domain: "YouTubeAPI", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
-                return
-            }
-            
-            do {
-                let decoded = try JSONDecoder().decode(YouTubeChannelResponse.self, from: data)
-                if let channelId = decoded.items.first?.id {
-                    completion(channelId, nil)
-                } else {
-                    completion(nil, NSError(domain: "YouTubeAPI", code: -2, userInfo: [NSLocalizedDescriptionKey: "No channel ID found"]))
-                }
-            } catch {
-                completion(nil, error)
-            }
-        }.resume()
-    }
-
-    
-    func listLiveBroadcasts() {
-        let urlString = "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=id,snippet,status,contentDetails&id=\(StreamHelper.shared.bcId)"
-        guard let url = URL(string: urlString) else { return }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(StreamHelper.shared.token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("❌ Broadcasts error:", error)
-                return
-            }
-            guard let data = data else {
-                print("❌ No data received for broadcasts")
-                return
-            }
-            if let json = String(data: data, encoding: .utf8) {
-                print("📺 Broadcasts response:\n\(json)")
-            }
-        }.resume()
     }
 
 }
@@ -188,3 +97,82 @@ struct ChannelItem: Codable {
     let id: String
 }
 
+import Foundation
+import Security
+
+final class TokenManager {
+    static let shared = TokenManager()
+    private init() {}
+    
+    private let accessTokenKey = "youtube_access_token"
+    private let refreshTokenKey = "youtube_refresh_token"
+
+    // MARK: - Public API
+    func saveAccessToken(_ token: String) {
+        save(token, forKey: accessTokenKey)
+    }
+
+    func saveRefreshToken(_ token: String) {
+        save(token, forKey: refreshTokenKey)
+    }
+
+    func getAccessToken() -> String? {
+        read(forKey: accessTokenKey)
+    }
+
+    func getRefreshToken() -> String? {
+        read(forKey: refreshTokenKey)
+    }
+
+    func clearTokens() {
+        delete(forKey: accessTokenKey)
+        delete(forKey: refreshTokenKey)
+    }
+
+    // MARK: - Private helpers
+    private func save(_ value: String, forKey key: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        // Delete existing value before adding new one
+        SecItemDelete(query as CFDictionary)
+        
+        let attributes: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        
+        SecItemAdd(attributes as CFDictionary, nil)
+    }
+
+    private func read(forKey key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var dataRef: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &dataRef)
+
+        guard status == errSecSuccess,
+              let data = dataRef as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return value
+    }
+
+    private func delete(forKey key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+}

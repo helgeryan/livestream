@@ -16,7 +16,6 @@ final class StreamHelper {
     
     var streamKey: String = ""
     var bcId: String = ""
-    var token: String = ""
     var streamId: String = ""
 }
 

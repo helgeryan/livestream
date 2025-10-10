@@ -12,7 +12,7 @@ import Foundation
     // MARK: - Properties
     var state: ViewModelState = .loaded
     /// View Articles to display
-    var articles: [Article] = []
+    var articles: [String] = []
     /// Page size per request
     var pageSize: Int = 10
     /// Query
@@ -26,12 +26,7 @@ import Foundation
     func loadNewsItems() {
         state = .loading
         Task {
-            // Create request
-            let request = FetchNewsRequest(source: sources,
-                                           q: query,
-                                           pageSize: pageSize)
             do {
-                articles = try await NewsAPI.shared.fetchNews(request)
                 state = .loaded
             } catch let error as CustomError {
                 state = .error(error)

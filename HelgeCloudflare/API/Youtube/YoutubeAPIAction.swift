@@ -109,7 +109,7 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var headers: [HTTPHeader] {
         let auth = HTTPHeader(key: "Authorization",
-                              value: "Bearer \(StreamHelper.shared.token)")
+                              value: "Bearer \(TokenManager.shared.getAccessToken()!)")
         let contentType = HTTPHeader(key: "Content-Type", value: "application/json")
         return [auth, contentType]
     }
