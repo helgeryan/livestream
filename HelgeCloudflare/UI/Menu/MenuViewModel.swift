@@ -7,9 +7,14 @@
 
 import Foundation
 
-@Observable
-class MenuViewModel {
+@MainActor
+@Observable class MenuViewModel {
+    var broadcasts: [YoutubeBroadcastResponse] = []
+    
     func fetchLivestreams() {
-        
+        Task {
+            let response = try await YoutubeService.shared.fetchBroadcasts()
+            broadcasts = response.items
+        }
     }
 }

@@ -19,10 +19,20 @@ struct MenuView: View {
     var body: some View {
         VStack(spacing: 20) {
             List {
-                
+                ForEach(viewModel.broadcasts, id: \.id) { bc in
+                    VStack {
+                        Text(bc.snippet.title)
+                        Text(bc.snippet.description)
+                    }
+                }
             }
         }
         .padding()
+        .onAppear {
+            withAnimation {
+                viewModel.fetchLivestreams()
+            }
+        }
     }
 }
 
@@ -37,15 +47,9 @@ extension UIApplication {
 }
 
 struct LiveBroadcastResponse: Codable {
-    struct Item: Codable {
-        struct Status: Codable {
-            let lifeCycleStatus: String
-        }
-        let id: String
-        let status: Status
-    }
-    let items: [Item]
+    let items: [YoutubeBroadcastResponse]
 }
+
 struct YouTubeChannelResponse: Codable {
     let items: [ChannelItem]
 }

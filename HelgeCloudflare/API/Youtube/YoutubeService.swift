@@ -104,6 +104,11 @@ final class YoutubeService {
         StreamHelper.shared.streamId = stream.id
     }
     
+    func fetchBroadcasts() async throws -> LiveBroadcastResponse {
+        let action = YoutubeAPIAction.getBroadcasts
+        return try await APIManager.shared.sendRequest(action)
+    }
+    
     func createBroadcast(request: YoutubeCreateBroadcastRequest) async throws -> YoutubeBroadcastResponse {
         let action = YoutubeAPIAction.createBroadcast(request)
         return try await APIManager.shared.sendRequest(action)

@@ -8,6 +8,7 @@
 import Foundation
 
 enum YoutubeAPIAction: HTTPRequest {
+    case getBroadcasts
     case createStream
     case createBroadcast(_ request: YoutubeCreateBroadcastRequest)
     case bindBroacastToStream(broadcastId: String,
@@ -18,6 +19,7 @@ enum YoutubeAPIAction: HTTPRequest {
         case .createStream,
                 .createBroadcast,
                 .bindBroacastToStream: .post
+        case .getBroadcasts: .get
         }
     }
     
@@ -31,7 +33,7 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var path: String {
         return switch self {
-        case .createBroadcast: "/youtube/v3/liveBroadcasts"
+        case .createBroadcast, .getBroadcasts: "/youtube/v3/liveBroadcasts"
         case .bindBroacastToStream: "/youtube/v3/liveBroadcasts/bind"
         case .createStream: "/youtube/v3/liveStreams"
         }
@@ -50,12 +52,19 @@ enum YoutubeAPIAction: HTTPRequest {
             URLQueryItem(name: "id", value: broadcastId),
             URLQueryItem(name: "streamId", value: streamId)
         ]
+        case .getBroadcasts: [
+            URLQueryItem(name: "part", value: "snippet,contentDetails,status"),
+            URLQueryItem(name: "mine", value: "\(true)"),
+            URLQueryItem(name: "maxResults", value: "10")
+        ]
             
         }
     }
     
     var body: Data? {
         switch self {
+        case .getBroadcasts:
+            return nil
         case .createBroadcast(let request):
             let startTime = ISO8601DateFormatter().string(from: request.startTime) // 1 hour later
             
