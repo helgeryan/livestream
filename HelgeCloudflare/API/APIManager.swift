@@ -79,7 +79,11 @@ final class APIManager {
         debugPrint("===========================================")
         debugPrint("Request: \(path)")
         debugPrint()
-        debugPrint(String(data: data, encoding: .utf8)!)
+        if let prettyJSONString = data.prettyJSONString {
+            debugPrint(prettyJSONString)
+        } else {
+            debugPrint(String(data: data, encoding: .utf8)!)
+        }
         debugPrint()
         debugPrint("===========================================")
     }

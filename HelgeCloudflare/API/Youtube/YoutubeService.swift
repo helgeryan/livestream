@@ -62,7 +62,6 @@ final class YoutubeService {
     @MainActor
     func signIn() async throws {
         let clientID = try getClientID()
-        
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         
         let presentingVc = UIApplication.shared.rootViewController!
@@ -86,6 +85,12 @@ final class YoutubeService {
         if TokenManager.shared.getAccessToken() == nil {
             throw YoutubeError.noAccessToken
         }
+    }
+    
+    func refreshToken() async throws {
+        let user = try await GIDSignIn.sharedInstance.restorePreviousSignIn()
+        TokenManager.shared.saveAccessToken(user.accessToken.tokenString)
+        TokenManager.shared.saveRefreshToken(user.refreshToken.tokenString)
     }
     
     func createNewLivestream(request: YoutubeCreateBroadcastRequest) async throws {

@@ -13,6 +13,17 @@ import SRTHaishinKit
 
 @main
 struct HelgeCloudflareApp: App {
+    
+    init() {
+        Task {
+            do {
+                try await YoutubeService.shared.refreshToken()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
