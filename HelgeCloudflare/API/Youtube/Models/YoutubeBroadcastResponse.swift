@@ -23,3 +23,15 @@ struct YoutubeBroadcastStatus: Codable {
     let lifeCycleStatus: String?
     let privacyStatus: String?
 }
+
+struct LiveBroadcastResponse: Codable {
+    let items: [YoutubeBroadcastResponse]
+}
+
+struct YouTubeChannelResponse: Codable {
+    let items: [ChannelItem]
+}
+
+struct ChannelItem: Codable {
+    let id: String
+}

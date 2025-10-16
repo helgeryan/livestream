@@ -50,7 +50,8 @@ enum YoutubePrivacyStatus: String, CaseIterable, Identifiable {
 final class YoutubeService {
     static let shared = YoutubeService()
     
-    func getClientID() throws -> String {
+    // MARK: - Authentication
+    private func getClientID() throws -> String {
         guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
               let dict = NSDictionary(contentsOfFile: path) as? [String: Any],
               let clientID = dict["CLIENT_ID"] as? String else {
@@ -93,6 +94,7 @@ final class YoutubeService {
         TokenManager.shared.saveRefreshToken(user.refreshToken.tokenString)
     }
     
+    // MARK: - Broadcasts/Livestreaming
     func createNewLivestream(request: YoutubeCreateBroadcastRequest) async throws {
         try verifyToken()
         

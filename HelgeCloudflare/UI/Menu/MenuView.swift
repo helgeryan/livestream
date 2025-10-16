@@ -37,25 +37,3 @@ struct MenuView: View {
         }
     }
 }
-
-
-
-extension UIApplication {
-    var rootViewController: UIViewController? {
-        connectedScenes
-            .compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
-            .first
-    }
-}
-
-struct LiveBroadcastResponse: Codable {
-    let items: [YoutubeBroadcastResponse]
-}
-
-struct YouTubeChannelResponse: Codable {
-    let items: [ChannelItem]
-}
-
-struct ChannelItem: Codable {
-    let id: String
-}
