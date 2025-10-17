@@ -114,6 +114,11 @@ final class YoutubeService {
         StreamHelper.shared.streamId = stream.id
     }
     
+    func fetchChannels() async throws -> YoutubeChannelResponse {
+        let action = YoutubeAPIAction.getChannel
+        return try await APIManager.shared.sendRequest(action)
+    }
+    
     func fetchBroadcasts() async throws -> LiveBroadcastResponse {
         let action = YoutubeAPIAction.getBroadcasts
         return try await APIManager.shared.sendRequest(action)
@@ -134,4 +139,41 @@ final class YoutubeService {
                                                            streamId: streamId)
         return try await APIManager.shared.sendRequest(action)
     }
+    
+    func deleteBroadcast(broadcastId: String) async throws {
+        let action = YoutubeAPIAction.deleteBroadcast(broadcastId: broadcastId)
+        try await APIManager.shared.sendRequest(action)
+    }
+}
+
+struct YoutubeChannelResponse: Codable {
+    struct Channel: Codable {
+        let id: String
+        let snippet: Snippet
+        let statistics: Statistics
+    }
+    
+    struct Snippet: Codable {
+        let title: String
+        let description: String
+        let thumbnails: YoutubeThumbnails
+    }
+    
+    struct YoutubeThumbnails: Codable {
+        let `default`: Thumbnail
+        let high: Thumbnail
+        let medium: Thumbnail
+        
+        struct Thumbnail: Codable {
+            let url: String
+        }
+    }
+    
+    struct Statistics: Codable {
+        let viewCount: String
+        let subscriberCount: String
+        let videoCount: String
+    }
+    
+    let items: [Channel]
 }

@@ -27,11 +27,3 @@ struct YoutubeBroadcastStatus: Codable {
 struct LiveBroadcastResponse: Codable {
     let items: [YoutubeBroadcastResponse]
 }
-
-struct YouTubeChannelResponse: Codable {
-    let items: [ChannelItem]
-}
-
-struct ChannelItem: Codable {
-    let id: String
-}

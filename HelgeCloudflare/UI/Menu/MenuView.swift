@@ -17,14 +17,48 @@ struct MenuView: View {
     @State var viewModel = MenuViewModel()
     
     var body: some View {
-        MainNavigationView(title: "Broadcasts") {
+        MainNavigationView(title: "Youtube") {
             ViewModelStateView(state: viewModel.state,
                                errorRetry: viewModel.fetchLivestreams) {
                 List {
-                    ForEach(viewModel.broadcasts, id: \.id) { bc in
-                        VStack {
-                            Text(bc.snippet.title)
-                            Text(bc.snippet.description)
+                    // Channel
+                    if let channel = viewModel.channel {
+                        Section("Channel") {
+                            HStack(alignment: .center) {
+                                AsyncImage(url: URL(string: channel.snippet.thumbnails.default.url)) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                                
+                                Text(channel.snippet.title)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                    }
+                    // Broadcasts
+                    Section("Broadcasts") {
+                        ForEach(viewModel.broadcasts, id: \.id) { bc in
+                            VStack(alignment: .leading) {
+                                Text(bc.snippet.title)
+                                    .fontWeight(.semibold)
+                                
+                                Text(bc.snippet.description)
+                                    .fontWeight(.light)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                // destructive delete
+                                Button(role: .destructive) {
+                                    // optionally show confirmation
+                                    viewModel.deleteBroadcast(bc)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                 }

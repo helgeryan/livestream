@@ -8,18 +8,22 @@
 import Foundation
 
 enum YoutubeAPIAction: HTTPRequest {
+    case getChannel
     case getBroadcasts
     case createStream
     case createBroadcast(_ request: YoutubeCreateBroadcastRequest)
     case bindBroacastToStream(broadcastId: String,
                               streamId: String)
+    case deleteBroadcast(broadcastId: String)
     
     var method: HTTPMethod {
         return switch self {
         case .createStream,
                 .createBroadcast,
                 .bindBroacastToStream: .post
-        case .getBroadcasts: .get
+        case .getChannel,
+                .getBroadcasts: .get
+        case .deleteBroadcast: .delete
         }
     }
     
@@ -33,7 +37,8 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var path: String {
         return switch self {
-        case .createBroadcast, .getBroadcasts: "/youtube/v3/liveBroadcasts"
+        case .getChannel: "/youtube/v3/channels"
+        case .createBroadcast, .getBroadcasts, .deleteBroadcast: "/youtube/v3/liveBroadcasts"
         case .bindBroacastToStream: "/youtube/v3/liveBroadcasts/bind"
         case .createStream: "/youtube/v3/liveStreams"
         }
@@ -41,6 +46,11 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var queryItems: [URLQueryItem]? {
         return switch self {
+        case .getChannel: [
+            URLQueryItem(name: "part", value: "snippet,statistics"),
+            URLQueryItem(name: "mine", value: "\(true)")
+        ]
+            
         case .createBroadcast: [
             URLQueryItem(name: "part", value: "snippet,contentDetails,status")
         ]
@@ -56,6 +66,9 @@ enum YoutubeAPIAction: HTTPRequest {
             URLQueryItem(name: "part", value: "snippet,contentDetails,status"),
             URLQueryItem(name: "mine", value: "\(true)"),
             URLQueryItem(name: "maxResults", value: "10")
+        ]
+        case .deleteBroadcast(let broadcastId): [
+            URLQueryItem(name: "id", value: broadcastId)
         ]
             
         }

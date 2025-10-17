@@ -8,13 +8,11 @@
 import Foundation
 
 extension Data {
-    var prettyJSONString: String? {
+    func prettyPrint() {
         // Try to parse the data into a Foundation object (Dictionary/Array)
-        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
-              let prettyData = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-              let prettyString = String(data: prettyData, encoding: .utf8) else {
-            return nil
+        guard let object = try? JSONSerialization.jsonObject(with: self, options: []) as? [String: Any] else {
+            return
         }
-        return prettyString
+        print(object)
     }
 }

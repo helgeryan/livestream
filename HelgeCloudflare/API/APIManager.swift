@@ -31,7 +31,15 @@ final class APIManager {
         }
     }
     
+    @discardableResult
     func sendRequest<T: Decodable>(_ request: HTTPRequest) async throws -> T {
+        let data = try await self.sendRequest(request)
+        let decodedData: T = try decodeData(data)
+        return decodedData
+    }
+    
+    @discardableResult
+    func sendRequest(_ request: HTTPRequest) async throws -> Data {
         do {
             // Create URLRequest
             let urlRequest = try request.urlRequest()
@@ -53,8 +61,7 @@ final class APIManager {
             }
             
             // Decode the data
-            let decodedData: T = try decodeData(data)
-            return decodedData
+            return data
         } catch let error as CustomError {
             throw error
         } catch let error as URLError {
@@ -79,11 +86,7 @@ final class APIManager {
         debugPrint("===========================================")
         debugPrint("Request: \(path)")
         debugPrint()
-        if let prettyJSONString = data.prettyJSONString {
-            debugPrint(prettyJSONString)
-        } else {
-            debugPrint(String(data: data, encoding: .utf8)!)
-        }
+        data.prettyPrint()
         debugPrint()
         debugPrint("===========================================")
     }
