@@ -30,16 +30,7 @@ enum YoutubeError: CustomError {
     }
 }
 
-struct YoutubeCreateBroadcastRequest: Identifiable {
-    let id = UUID()
-    var title: String = ""
-    var description: String = ""
-    var startTime: Date = Date()
-    var privacy: YoutubePrivacyStatus = .public
-    var isForKids: Bool = false
-}
-
-enum YoutubePrivacyStatus: String, CaseIterable, Identifiable {
+enum YoutubePrivacyStatus: String, CaseIterable, Identifiable, Codable {
     case `public` = "public"
     case unlisted = "unlisted"
     case `private` = "private"

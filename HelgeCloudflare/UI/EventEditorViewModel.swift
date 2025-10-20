@@ -24,7 +24,7 @@ final class EventEditorViewModel: ObservableObject {
     private func setupValidation() {
         // Simple validation: requires non-empty title
         $draft
-            .map { !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .map { !$0.snippet.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             .removeDuplicates()
             .assign(to: \.canSave, on: self)
             .store(in: &cancellables)

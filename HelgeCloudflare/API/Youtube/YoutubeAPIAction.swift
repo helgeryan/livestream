@@ -76,54 +76,13 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var body: Data? {
         switch self {
-        case .getBroadcasts:
-            return nil
+        case .getBroadcasts: return nil
         case .createBroadcast(let request):
-            let startTime = ISO8601DateFormatter().string(from: request.startTime) // 1 hour later
-            
-            let body: [String: Any] = [
-                "snippet": [
-                    "title": request.title,
-                    "description": request.description,
-                    "scheduledStartTime": startTime
-                ],
-                "contentDetails": [
-                    "monitorStream": [
-                        "enableMonitorStream": false,
-                        "broadcastStreamDelayMs": 60000
-                    ],
-                    "enableDvr": true,
-                    "enableEmbed": false,
-                    "enableContentEncryption": false,
-                    "enableLowLatency": false,
-                    "recordFromStart": true,
-                    "startWithSlate": false,
-                    "enableAutoStart": true,
-                    "enableAutoStop": false
-                ],
-                "status": [
-                    "privacyStatus": request.privacy.rawValue,
-                    "selfDeclaredMadeForKids": request.isForKids
-                ]
-            ]
-            
-            return try? JSONSerialization.data(withJSONObject: body)
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            return try? encoder.encode(request)
         case .createStream:
-            let body: [String: Any] = [
-                "snippet": [
-                    "title": "720p"
-                ],
-                "cdn": [
-                    "resolution": "variable",
-                    "frameRate": "variable",
-                    "ingestionType": "rtmp"
-                ],
-                "contentDetails": [
-                    "isReusable": false
-                ]
-            ]
-            return try? JSONSerialization.data(withJSONObject: body)
-            
+            return try? JSONEncoder().encode(YoutubeCreateStreamRequest())
         default:
             return nil
         }
@@ -157,4 +116,72 @@ struct YoutubeErrorResponse: Codable {
     }
 }
 
+struct YoutubeCreateBroadcastRequest: Codable {
+    var snippet: SnippetRequest
+    var contentDetails: ContentDetailsRequest = .init()
+    var status: StatusRequest = .init()
+    
+    init(title: String = "",
+        description: String = "",
+         scheduledStartTime: Date = .now,
+         privacyStatus: YoutubePrivacyStatus = .public,
+        isForKids: Bool = false) {
+        self.snippet = SnippetRequest(
+            title: title,
+            description: description,
+            scheduledStartTime: scheduledStartTime
+        )
+        self.status = StatusRequest(
+            privacyStatus: privacyStatus,
+            selfDeclaredMadeForKids: isForKids
+        )
+    }
+}
 
+struct SnippetRequest: Codable {
+    var title: String
+    var description: String
+    var scheduledStartTime: Date
+}
+
+struct ContentDetailsRequest: Codable {
+    var monitorStream: MonitorStreamRequest = .init()
+    var enableDvr: Bool = true
+    var enableEmbed: Bool = false
+    var enableContentEncryption: Bool = false
+    var enableLowLatency: Bool = false
+    var recordFromStart: Bool = true
+    var startWithSlate: Bool = false
+    var enableAutoStart: Bool = true
+    var enableAutoStop: Bool = false
+}
+
+struct MonitorStreamRequest: Codable {
+    var enableMonitorStream: Bool = false
+    var broadcastStreamDelayMs: Int = 60000
+}
+
+struct StatusRequest: Codable {
+    var privacyStatus: YoutubePrivacyStatus = .public
+    var selfDeclaredMadeForKids: Bool = false
+}
+
+struct YoutubeCreateStreamRequest: Codable {
+    var snippet: StreamSnippetRequest = .init()
+    var cdn: CDNRequest = .init()
+    var contentDetails: StreamContentDetailsRequest = .init()
+}
+
+struct StreamSnippetRequest: Codable {
+    var title: String = "720p"
+}
+
+struct CDNRequest: Codable {
+    var resolution: String = "variable"
+    var frameRate: String = "variable"
+    var ingestionType: String = "rtmp"
+}
+
+struct StreamContentDetailsRequest: Codable {
+    var isReusable: Bool = false
+}

@@ -17,7 +17,7 @@ struct EventEditorView: View {
         NavigationView {
             Form {
                 Section(header: Text("Details")) {
-                    TextField("Title", text: $vm.draft.title)
+                    TextField("Title", text: $vm.draft.snippet.title)
                         .accessibilityLabel("Title")
                         .submitLabel(.next)
 
@@ -26,11 +26,11 @@ struct EventEditorView: View {
                         HStack {
                             Text("Description")
                             Spacer()
-                            Text("\(vm.draft.description.count) chars")
+                            Text("\(vm.draft.snippet.description.count) chars")
                                 .foregroundColor(.secondary)
                                 .font(.caption)
                         }
-                        TextEditor(text: $vm.draft.description)
+                        TextEditor(text: $vm.draft.snippet.description)
                             .frame(minHeight: 100)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
@@ -41,13 +41,13 @@ struct EventEditorView: View {
                 }
 
                 Section(header: Text("Schedule")) {
-                    DatePicker("Start time", selection: $vm.draft.startTime, displayedComponents: [.date, .hourAndMinute])
+                    DatePicker("Start time", selection: $vm.draft.snippet.scheduledStartTime, displayedComponents: [.date, .hourAndMinute])
                         .accessibilityLabel("Start time")
                 }
 
                 Section(header: Text("Privacy")) {
                     // Menu-style picker
-                    Picker("Privacy status", selection: $vm.draft.privacy) {
+                    Picker("Privacy status", selection: $vm.draft.status.privacyStatus) {
                         ForEach(YoutubePrivacyStatus.allCases) { status in
                             Text(status.rawValue).tag(status)
                         }
@@ -57,7 +57,7 @@ struct EventEditorView: View {
                 }
 
                 Section {
-                    Toggle(isOn: $vm.draft.isForKids) {
+                    Toggle(isOn: $vm.draft.status.selfDeclaredMadeForKids) {
                         Text("Made for kids")
                     }
                     .accessibilityHint("Turn on if this content is for children")
