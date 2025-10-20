@@ -13,6 +13,8 @@ struct MenuView: View {
     @State private var streamKey: String?
     @State private var ingestionAddress: String?
     @State private var errorMessage: String?
+    @State var isCreatePresented: Bool = false
+    
 
     @State var viewModel = MenuViewModel()
     
@@ -42,6 +44,12 @@ struct MenuView: View {
                     }
                     // Broadcasts
                     Section("Broadcasts") {
+                        Button {
+                            isCreatePresented = true
+                        } label: {
+                            Label("Create", systemImage: "plus")
+                        }
+                        
                         ForEach(viewModel.broadcasts, id: \.id) { bc in
                             VStack(alignment: .leading) {
                                 Text(bc.snippet.title)
@@ -67,6 +75,14 @@ struct MenuView: View {
         .onAppear {
             withAnimation {
                 viewModel.fetchLivestreams()
+            }
+        }
+        .sheet(isPresented: $isCreatePresented) {
+            EventEditorView(vm: .init()) { req in
+                Task {
+                    let _ = try await YoutubeService.shared.createNewLivestream(request: req)
+                    viewModel.fetchLivestreams()
+                }
             }
         }
     }
