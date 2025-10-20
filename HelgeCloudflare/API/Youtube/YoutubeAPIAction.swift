@@ -8,8 +8,8 @@
 import Foundation
 
 enum YoutubeAPIAction: HTTPRequest {
-    case getChannel
-    case getBroadcasts
+    case getChannel(_ mine: Bool = true)
+    case getBroadcasts(mine: Bool = true, maxResults: Int = 10)
     case createStream
     case createBroadcast(_ request: YoutubeCreateBroadcastRequest)
     case bindBroacastToStream(broadcastId: String,
@@ -46,9 +46,9 @@ enum YoutubeAPIAction: HTTPRequest {
     
     var queryItems: [URLQueryItem]? {
         return switch self {
-        case .getChannel: [
+        case .getChannel(let mine): [
             URLQueryItem(name: "part", value: "snippet,statistics"),
-            URLQueryItem(name: "mine", value: "\(true)")
+            URLQueryItem(name: "mine", value: mine)
         ]
             
         case .createBroadcast: [
@@ -62,10 +62,10 @@ enum YoutubeAPIAction: HTTPRequest {
             URLQueryItem(name: "id", value: broadcastId),
             URLQueryItem(name: "streamId", value: streamId)
         ]
-        case .getBroadcasts: [
+        case .getBroadcasts(let mine, let maxResults): [
             URLQueryItem(name: "part", value: "snippet,contentDetails,status"),
-            URLQueryItem(name: "mine", value: "\(true)"),
-            URLQueryItem(name: "maxResults", value: "10")
+            URLQueryItem(name: "mine", value: mine),
+            URLQueryItem(name: "maxResults", value: maxResults)
         ]
         case .deleteBroadcast(let broadcastId): [
             URLQueryItem(name: "id", value: broadcastId)
