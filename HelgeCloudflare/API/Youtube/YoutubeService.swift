@@ -8,14 +8,6 @@
 import SwiftUI
 import GoogleSignIn
 
-enum YoutubePrivacyStatus: String, CaseIterable, Identifiable, Codable {
-    case `public` = "public"
-    case unlisted = "unlisted"
-    case `private` = "private"
-
-    var id: String { rawValue }
-}
-
 final class YoutubeService {
     static let shared = YoutubeService()
     
@@ -27,6 +19,16 @@ final class YoutubeService {
             throw YoutubeError.noClientID
         }
         return clientID
+    }
+    
+    func start() {
+        Task {
+            do {
+                try await self.refreshToken()
+            } catch {
+                print(error)
+            }
+        }
     }
     
     @MainActor

@@ -11,14 +11,6 @@ import HaishinKit
 import RTCHaishinKit
 import VideoToolbox
 
-final class StreamHelper {
-    static let shared: StreamHelper = .init()
-    
-    var streamKey: String = ""
-    var bcId: String = ""
-    var streamId: String = ""
-}
-
 struct AccountView: View {
     @StateObject var viewModel: LiveStreamViewModel = .init()
     var preference: PreferenceViewModel = .init()

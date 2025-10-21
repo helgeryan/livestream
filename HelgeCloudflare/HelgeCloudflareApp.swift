@@ -14,16 +14,12 @@ import SRTHaishinKit
 @main
 struct HelgeCloudflareApp: App {
     
+    // MARK: - Initializers
     init() {
-        Task {
-            do {
-                try await YoutubeService.shared.refreshToken()
-            } catch {
-                print(error)
-            }
-        }
+        YoutubeService.shared.start()
     }
     
+    // MARK: - UI Content
     var body: some Scene {
         WindowGroup {
             ContentView()

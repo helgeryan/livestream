@@ -49,7 +49,8 @@ struct EventEditorView: View {
                     // Menu-style picker
                     Picker("Privacy status", selection: $vm.draft.status.privacyStatus) {
                         ForEach(YoutubePrivacyStatus.allCases) { status in
-                            Text(status.rawValue).tag(status)
+                            Text(status.text)
+                                .tag(status)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
