@@ -12,6 +12,7 @@ enum MainTabBarItem: Int, CaseIterable, Identifiable {
     case home = 0
     case menu
     case account
+    case settings
     
     var id: Int { self.rawValue }
     
@@ -20,6 +21,7 @@ enum MainTabBarItem: Int, CaseIterable, Identifiable {
         case .home: "house"
         case .menu: "text.justify"
         case .account: "person"
+        case .settings: "gear"
         }
     }
     
@@ -28,17 +30,16 @@ enum MainTabBarItem: Int, CaseIterable, Identifiable {
         case .home: "Home"
         case .menu: "Menu"
         case .account: "Account"
+        case .settings: "Settings"
         }
     }
     
     @ViewBuilder func content() -> some View {
         switch self {
-        case .home:
-            HomeView()
-        case .menu:
-            MenuView()
-        case .account:
-            AccountView()
+        case .home: HomeView()
+        case .menu: MenuView()
+        case .account: AccountView()
+        case .settings: SettingsView()
         }
     }
 }

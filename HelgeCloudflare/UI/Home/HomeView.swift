@@ -25,7 +25,7 @@ struct HomeView: View {
                     List {
                         Section("Top Stories") {
                             ForEach(viewModel.articles,  id: \.self) { item in
-                                ArticleRowView(article: item)
+                                Text(item)
                             }
                         }
                     }

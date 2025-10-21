@@ -31,22 +31,37 @@ final class APIManager {
         }
     }
     
+    @discardableResult
     func sendRequest<T: Decodable>(_ request: HTTPRequest) async throws -> T {
+        let data = try await self.sendRequest(request)
+        let decodedData: T = try decodeData(data)
+        return decodedData
+    }
+    
+    @discardableResult
+    func sendRequest(_ request: HTTPRequest) async throws -> Data {
         do {
             // Create URLRequest
-            let request = try request.urlRequest()
+            let urlRequest = try request.urlRequest()
             
             // Send Data Request
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+            
+            if request.isLoggingEnabled {
+                logRequest(request.path, data: data)
+            }
             
             if let httpResponse = response as? HTTPURLResponse,
                 httpResponse.statusCode > 299 {
-                throw APIManagerError.invalidResponse
+                if let error = request.decodeError(errorData: data) {
+                    throw error
+                } else {
+                    throw APIManagerError.invalidResponse
+                }
             }
             
             // Decode the data
-            let decodedData: T = try decodeData(data)
-            return decodedData
+            return data
         } catch let error as CustomError {
             throw error
         } catch let error as URLError {
@@ -65,5 +80,14 @@ final class APIManager {
             // Do nothing
             throw APIManagerError.failedToCreateRequest
         }
+    }
+    
+    private func logRequest(_ path: String, data: Data) {
+        debugPrint("===========================================")
+        debugPrint("Request: \(path)")
+        debugPrint()
+        data.prettyPrint()
+        debugPrint()
+        debugPrint("===========================================")
     }
 }

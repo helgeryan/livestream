@@ -13,6 +13,13 @@ import SRTHaishinKit
 
 @main
 struct HelgeCloudflareApp: App {
+    
+    // MARK: - Initializers
+    init() {
+        YoutubeService.shared.start()
+    }
+    
+    // MARK: - UI Content
     var body: some Scene {
         WindowGroup {
             ContentView()
